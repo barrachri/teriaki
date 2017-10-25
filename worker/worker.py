@@ -19,14 +19,13 @@ import aio_pika
 import pandas as pd
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CSV_FOLDER = os.path.join(BASE_DIR, "csv_folder")
 FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+CSV_FOLDER = os.path.join(BASE_DIR, "csv_folder")
 SMTP_SERVER = ""  # SMTP server
 SMTP_PORT = 0  # SMTP port
 EMAIL_USER = ""  # SMTP user
 EMAIL_PASSWORD = ""  # SMTP password
-EMAIL_SENDER = ""  # Email sender
-EMAIL_RECEIVER = ""  # Email receiver
+EMAIL_SENDER = ""  # Email receiver
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
@@ -73,8 +72,8 @@ def send_email(email: str, df: pd.DataFrame):
     msg = EmailMessage()
 
     msg['Subject'] = 'Greetings from Teriaki'
-    msg['From'] = EMAIL_SENDER
-    msg['To'] = EMAIL_RECEIVER
+    msg['From'] = "barrachri@gmail.com"
+    msg['To'] = email
 
     if df is None:
         log.error("Empty dataframe")

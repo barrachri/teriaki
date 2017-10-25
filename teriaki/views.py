@@ -30,6 +30,9 @@ page = '''
 <form action="/upload" method="post" accept-charset="utf-8"
       enctype="multipart/form-data">
 
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" value=""/>
+
     <label for="csv">csv</label>
     <input id="csv" name="csv" type="file" value=""/>
 
@@ -43,33 +46,57 @@ async def welcome(request):
     return json_response({'message': 'Welcome to Teriaki!'})
 
 
+async def save_multipart(request):
+    """Handle a multipart form."""
+    multipart = await request.multipart()
+    out = {}
+    while True:
+        field = await multipart.next()
+        if not field:
+            break
+        size = 0
+        content_type = field.headers.get('CONTENT-TYPE')
+
+        if field.filename:
+            _, extension = os.path.splitext(field.filename)
+            csv_filename = "".join((uuid4().hex, ".csv"))
+            out["csv_filename"] = csv_filename
+
+            if extension != ".csv":
+                return json_response({'message': f'We only process csv files'})
+
+            with open(os.path.join(CSV_FOLDER, csv_filename), 'wb') as f:
+                while True:
+                    chunk = await field.read_chunk()
+                    if not chunk:
+                        break
+                    size += len(chunk)
+                    f.write(chunk)
+        else:
+            value = await field.read(decode=True)
+            if content_type is None or \
+                    content_type.startswith('text/'):
+                charset = field.get_charset(default='utf-8')
+                value = value.decode(charset)
+            out[field.name] = value
+            size += len(value)
+
+    return out
+
+
 async def upload(request):
     """Upload the file a save it with a local uuid."""
     if request.method == 'POST':
 
         log.debug("Received POST request")
 
-        reader = await request.multipart()
-        email = "barrachri@gmail.com"
+        data = await save_multipart(request)
+        if 'email' in data:
+            email = data['email']
+        if 'csv_filename' in data:
+            csv_filename = data['csv_filename']
 
-        _csv = await reader.next()
-
-        _, extension = os.path.splitext(_csv.filename)
-
-        if extension != ".csv":
-            return json_response({'message': f'We only process csv files'})
-
-        uuid_name = uuid4().hex
-        csv_filename = "".join((uuid_name, ".csv"))
-
-        size = 0
-        with open(os.path.join(CSV_FOLDER, csv_filename), 'wb') as f:
-            while True:
-                chunk = await _csv.read_chunk()
-                if not chunk:
-                    break
-                size += len(chunk)
-                f.write(chunk)
+        log.info("Hello")
 
         connection = await aio_pika.connect_robust("amqp://guest:guest@0.0.0.0/")
 
