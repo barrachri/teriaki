@@ -8,6 +8,7 @@ SMTP_SERVER = "" # SMTP server
 SMTP_PORT = 0 # SMTP port
 EMAIL_USER = "" # SMTP user
 EMAIL_PASSWORD = "" # SMTP password
+EMAIL_SENDER = ""  # Email sender
 EMAIL_RECEIVER = "" # Email receiver
 ```
 

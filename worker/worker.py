@@ -25,6 +25,7 @@ SMTP_SERVER = ""  # SMTP server
 SMTP_PORT = 0  # SMTP port
 EMAIL_USER = ""  # SMTP user
 EMAIL_PASSWORD = ""  # SMTP password
+EMAIL_SENDER = ""  # Email sender
 EMAIL_RECEIVER = ""  # Email receiver
 
 log = logging.getLogger(__name__)
@@ -72,7 +73,7 @@ def send_email(email: str, df: pd.DataFrame):
     msg = EmailMessage()
 
     msg['Subject'] = 'Greetings from Teriaki'
-    msg['From'] = "barrachri@gmail.com"
+    msg['From'] = EMAIL_SENDER
     msg['To'] = EMAIL_RECEIVER
 
     if df is None:
